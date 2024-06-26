@@ -21,6 +21,8 @@ If one of the init stage directories contain a `main.tf`, the extension will run
 > [!NOTE]
 > Terraform state files will be created in your host directory if you mounted an entire folder into `/etc/localstack/init/ready.d`. These files are created from within the container using the container user, so you may need `sudo` to remove the files from your host.
 
+### Example
+
 Example `main.tf`:
 ```hcl
 resource "aws_sqs_queue" "queue" {
@@ -30,6 +32,22 @@ resource "aws_sqs_queue" "queue" {
 resource "aws_s3_bucket" "bucket" {
   bucket = "my-test-bucket"
 }
+```
+
+Start LocalStack Pro with mounted `main.tf`:
+
+```console
+localstack start \
+  -e EXTENSION_AUTO_INSTALL="git+https://github.com/thrau/localstack-terraform-init/#egg=localstack-terraform-init" \
+  -v ./main.tf:/etc/localstack/init/ready.d/main.tf
+```
+
+The logs should show something like:
+
+```
+2024-06-26T20:36:19.946  INFO --- [ady_monitor)] l.extension                : Applying terraform project from file /etc/localstack/init/ready.d/main.tf
+2024-06-26T20:36:19.946 DEBUG --- [ady_monitor)] localstack.utils.run       : Executing command: ['tflocal', '-chdir=/etc/localstack/init/ready.d', 'init', '-input=false']
+2024-06-26T20:36:26.864 DEBUG --- [ady_monitor)] localstack.utils.run       : Executing command: ['tflocal', '-chdir=/etc/localstack/init/ready.d', 'apply', '-auto-approve']
 ```
 
 ## Install local development version
