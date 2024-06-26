@@ -1,7 +1,36 @@
 LocalStack Terraform Init
 ===============================
 
-LocalStack Extension for using Terraform files in init hooks
+LocalStack Extension for using Terraform files in [init hooks](https://docs.localstack.cloud/references/init-hooks/).
+
+> [!WARNING]
+> This extension is experimental and subject to change.
+
+> [!NOTE]
+> The extension is designed for simple self-contained terraform files, not complex projects or modules.
+> If you have larger projects, then we recommend running them from the host.
+
+## Usage
+
+* Start localstack with `EXTENSION_AUTO_INSTALL="git+https://github.com/thrau/localstack-terraform-init/#egg=localstack-terraform-init"`
+* Mount a `main.tf` file into `/etc/localstack/init/ready.d`
+
+When LocalStack starts up, it will install the extension, which in turn install `terraform` and `tflocal` into the container.
+If one of the init stage directories contain a `main.tf`, the extension will run `tflocal init` and `tflocal apply` on that directory.
+
+> [!NOTE]
+> Terraform state files will be created in your host directory if you mounted an entire folder into `/etc/localstack/init/ready.d`. These files are created from within the container using the container user, so you may need `sudo` to remove the files from your host.
+
+Example `main.tf`:
+```hcl
+resource "aws_sqs_queue" "queue" {
+  name = "my-test-queue"
+}
+
+resource "aws_s3_bucket" "bucket" {
+  bucket = "my-test-bucket"
+}
+```
 
 ## Install local development version
 

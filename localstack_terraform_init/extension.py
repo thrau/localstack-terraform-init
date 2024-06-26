@@ -10,8 +10,6 @@ from localstack.packages.terraform import terraform_package
 from localstack.runtime.init import ScriptRunner
 from localstack.utils.run import run
 
-import logging
-
 LOG = logging.getLogger(__name__)
 
 
@@ -62,9 +60,9 @@ class TflocalScriptRunner(ScriptRunner):
         tf_path = terraform_package.get_installed_dir()
         install_dir = tflocal_package.get_installer()._get_install_dir(InstallTarget.VAR_LIBS)
         tflocal_path = f"{install_dir}/bin"
-        env_path = f"{tflocal_path}:{tf_path}:$PATH"
+        env_path = f"{tflocal_path}:{tf_path}:{os.getenv('PATH')}"
 
-        LOG.info("Applying terraform plan for terraform file %s", path)
+        LOG.info("Applying terraform project from file %s", path)
         # run tflocal
         workdir = os.path.dirname(path)
         run(["tflocal", f"-chdir={workdir}", "init", "-input=false"], env_vars={"PATH": env_path})
