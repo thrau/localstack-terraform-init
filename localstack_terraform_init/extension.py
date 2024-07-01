@@ -65,5 +65,7 @@ class TflocalScriptRunner(ScriptRunner):
         LOG.info("Applying terraform project from file %s", path)
         # run tflocal
         workdir = os.path.dirname(path)
+        LOG.debug("Initializing terraform provider in %s", workdir)
         run(["tflocal", f"-chdir={workdir}", "init", "-input=false"], env_vars={"PATH": env_path})
+        LOG.debug("Applying terraform file %s", path)
         run(["tflocal", f"-chdir={workdir}", "apply", "-auto-approve"], env_vars={"PATH": env_path})

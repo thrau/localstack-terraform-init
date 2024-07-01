@@ -1,5 +1,5 @@
-LocalStack Terraform Init
-===============================
+Use Terraform files in LocalStack init hooks
+============================================
 
 LocalStack Extension for using Terraform files in [init hooks](https://docs.localstack.cloud/references/init-hooks/).
 
@@ -12,25 +12,28 @@ LocalStack Extension for using Terraform files in [init hooks](https://docs.loca
 
 ## Usage
 
-* Start localstack with `EXTENSION_AUTO_INSTALL="git+https://github.com/thrau/localstack-terraform-init/#egg=localstack-terraform-init"`
+* Start localstack with `EXTENSION_AUTO_INSTALL="localstack-extension-terraform-init"`
 * Mount a `main.tf` file into `/etc/localstack/init/ready.d`
 
 When LocalStack starts up, it will install the extension, which in turn install `terraform` and `tflocal` into the container.
 If one of the init stage directories contain a `main.tf`, the extension will run `tflocal init` and `tflocal apply` on that directory.
 
 > [!NOTE]
-> Terraform state files will be created in your host directory if you mounted an entire folder into `/etc/localstack/init/ready.d`. These files are created from within the container using the container user, so you may need `sudo` to remove the files from your host.
-
+> Terraform state files will be created in your host directory if you mounted an entire folder into `/etc/localstack/init/ready.d`.
+> These files are created from within the container using the container user, so you may need `sudo` to remove the files from your host.
+> If you only mount the `main.tf` file, not an entire directory, localstack will have to download the AWS terraform provider every time during `tflocal init`.
+> 
 ### Example
 
 Example `main.tf`:
 ```hcl
-resource "aws_sqs_queue" "queue" {
-  name = "my-test-queue"
-}
+resource "aws_s3_bucket" "example" {
+  bucket = "my-tf-test-bucket"
 
-resource "aws_s3_bucket" "bucket" {
-  bucket = "my-test-bucket"
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
 }
 ```
 
@@ -38,8 +41,28 @@ Start LocalStack Pro with mounted `main.tf`:
 
 ```console
 localstack start \
-  -e EXTENSION_AUTO_INSTALL="git+https://github.com/thrau/localstack-terraform-init/#egg=localstack-terraform-init" \
+  -e EXTENSION_AUTO_INSTALL="localstack-extension-terraform-init" \
   -v ./main.tf:/etc/localstack/init/ready.d/main.tf
+```
+
+Or, if you use a docker-compose file:
+
+```yaml
+services:
+  localstack:
+    container_name: "localstack-main"
+    image: localstack/localstack-pro  # required for Pro
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+    environment:
+      # Activate LocalStack Pro: https://docs.localstack.cloud/getting-started/auth-token/
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN:?}
+      - EXTENSION_AUTO_LOAD=localstack-extension-terraform-init"
+    volumes:
+      # you could also place your main.tf in `./ready.d` and set "./ready.d:/etc/localstack/init/ready.d"
+      - "./main.tf:/etc/localstack/init/ready.d/main.tf"
+      - "./volume:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
 ```
 
 The logs should show something like:
