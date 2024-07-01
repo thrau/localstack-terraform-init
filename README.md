@@ -65,6 +65,12 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
 ```
 
+In a new terminal window, you can wait for localstack to complete and then print the created s3 buckets.
+
+```console
+localstack wait && awslocal s3 ls
+```
+
 The logs should show something like:
 
 ```
@@ -100,5 +106,5 @@ EXTENSION_DEV_MODE=1 localstack start
 To distribute your extension, simply upload it to your github account. Your extension can then be installed via:
 
 ```bash
-localstack extensions install "git+https://github.com/thrau/localstack-terraform-init/#egg=localstack-terraform-init"
+localstack extensions install "git+https://github.com/thrau/localstack-terraform-init/#egg=localstack-extension-terraform-init"
 ```

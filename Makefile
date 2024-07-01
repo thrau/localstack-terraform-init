@@ -7,7 +7,7 @@ venv: $(VENV_ACTIVATE)
 
 $(VENV_ACTIVATE): setup.py setup.cfg
 	test -d .venv || $(VENV_BIN) .venv
-	$(VENV_RUN); pip install --upgrade pip setuptools plux
+	$(VENV_RUN); pip install --upgrade pip setuptools plux build
 	$(VENV_RUN); pip install -e .
 	touch $(VENV_DIR)/bin/activate
 
@@ -21,7 +21,7 @@ install: venv
 	$(VENV_RUN); python setup.py develop
 
 dist: venv
-	$(VENV_RUN); python setup.py sdist bdist_wheel
+	$(VENV_RUN); python -m build
 
 publish: clean-dist venv dist
 	$(VENV_RUN); pip install --upgrade twine; twine upload dist/*
