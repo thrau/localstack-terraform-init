@@ -1,10 +1,13 @@
+
+> [!WARNING]
+> THIS EXTENSION HAS MOVED TO https://github.com/localstack/localstack-extensions/tree/main/terraform-init
+
+---
+
 Use Terraform files in LocalStack init hooks
 ============================================
 
 LocalStack Extension for using Terraform files in [init hooks](https://docs.localstack.cloud/references/init-hooks/).
-
-> [!WARNING]
-> This extension is experimental and subject to change.
 
 > [!NOTE]
 > The extension is designed for simple self-contained terraform files, not complex projects or modules.
